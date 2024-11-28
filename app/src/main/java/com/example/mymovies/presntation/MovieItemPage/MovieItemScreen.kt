@@ -28,6 +28,7 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import coil.compose.rememberImagePainter
+import com.example.mymovies.presntation.MovieItemPage.UiComponents.VoteAverageIndicator
 
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -193,33 +194,7 @@ fun MovieItemScreen(
         }
     }
 }
-@Composable
-fun VoteAverageIndicator(voteAverage: Float) {
-    // Create a Circular Progress Bar to represent the vote average
-    val percentage = (voteAverage / 10) * 100 // Assuming vote average is out of 10
 
-    Column(
-        horizontalAlignment = Alignment.CenterHorizontally,
-        modifier = Modifier.fillMaxWidth()
-    ) {
-        CircularProgressIndicator(
-            progress = percentage / 100f, // Normalize to 0..1
-            strokeWidth = 8.dp,
-            modifier = Modifier
-                .size(120.dp) // Larger size for emphasis
-                .padding(8.dp),
-            color = MaterialTheme.colorScheme.secondary
-        )
-
-        Spacer(modifier = Modifier.height(8.dp))
-
-        Text(
-            text = "Vote Average: ${"%.1f".format(voteAverage)}",
-            style = MaterialTheme.typography.bodyLarge,
-            color = MaterialTheme.colorScheme.onBackground
-        )
-    }
-}
 
 
 

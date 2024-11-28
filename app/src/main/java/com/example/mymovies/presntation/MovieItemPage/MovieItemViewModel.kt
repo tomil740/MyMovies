@@ -37,7 +37,6 @@ class MovieItemViewModel@Inject constructor(
                     val setFavStatues = moviesRepo.setFavorItemStatuesById(uiState.value.movieModuleItem.id,(!uiState.value.favoriteStatus))
                     when(setFavStatues){
                         is Result.Success->{
-                            Log.i("AAA3","updated to ${(!uiState.value.favoriteStatus)}")
                            _uiState.update { it.copy(favoriteStatus = (!uiState.value.favoriteStatus)) }
                         }
 
