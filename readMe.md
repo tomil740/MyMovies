@@ -63,7 +63,31 @@ While Paging 3 is highly efficient, it requires the repository to directly manag
 
 ## How to Run
 
-For detailed instructions on how to run the project, including adding your TMDb API key and setting up the project in Android Studio, please refer to the [How to Run Instructions](./readme.html).
+1. Clone the repository
+First, clone the repository to your local machine by running the following command in your terminal:
+    <h1>How to Run Movies App</h1>
+
+    <code>git clone https://github.com/yourusername/movies-app.git</code>
+
+
+2. Add your API key
+To access the movie data from the TMDb API, you need to provide your API key.
+
+Navigate to the data/util directory in the project.<br>
+
+Create or open the ApiKeys.kt file.<br>
+
+Add your TMDb API key in the file.<br>
+
+You can obtain your TMDb API key by creating an account on The Movie Database and generating an API key under your account settings.<br>
+
+3. Open the project in Android Studio
+Open the project in Android Studio.
+
+4. Run the app<br>
+Connect a physical device or start an Android emulator (Android 5.0+). Then press Run in Android Studio.
+
+
 
 ---
 
@@ -72,19 +96,4 @@ For detailed instructions on how to run the project, including adding your TMDb 
 - **Search Functionality:** Implement a search feature for users to find specific movies.
 - **User Authentication:** Enable login to sync favorites across devices.
 
----
 
-## License
-
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
-
----
-
-Feel free to submit any issues or pull requests if you'd like to contribute to this project!
-
----
-
-### Notes:
-
-1. This format ensures that the content is presented in a clean and readable format for users viewing it in GitHub, Bitbucket, or other platforms that render Markdown.
-2. **How to Run:** This section includes a link to a separate HTML file (`how-to-run.html`) that contains the setup instructions.
