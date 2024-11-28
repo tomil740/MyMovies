@@ -1,26 +1,34 @@
 package com.example.mymovies.presntation.MovieItemPage
 
-import android.util.Log
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.CornerSize
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Favorite
 import androidx.compose.material.icons.filled.ArrowBack
+import androidx.compose.material.icons.filled.Favorite
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.graphics.Brush
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.input.key.Key
+import androidx.compose.ui.input.key.KeyEventType
+import androidx.compose.ui.input.key.key
+import androidx.compose.ui.input.key.onPreviewKeyEvent
+import androidx.compose.ui.input.key.type
 import androidx.compose.ui.layout.ContentScale
-import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import coil.compose.rememberImagePainter
-import androidx.compose.ui.text.style.TextOverflow
-import com.example.mymovies.domain.models.MovieModule
+
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -30,13 +38,26 @@ fun MovieItemScreen(
     val uiState = movieItemStateAndEvents.uiState
     val movie = uiState.movieModuleItem
 
-
+    var isFavoriteButtonFocused by remember { mutableStateOf(false) }
 
     Box(
         modifier = Modifier
             .fillMaxSize()
             .padding(16.dp)
-            .background(MaterialTheme.colorScheme.background) // Set the background color based on the theme
+            .background(MaterialTheme.colorScheme.background)
+            .onPreviewKeyEvent { event ->
+                if (event.type == KeyEventType.KeyDown) {
+                    when (event.key) {
+                        Key.Enter -> {
+                            if (isFavoriteButtonFocused) {
+                                movieItemStateAndEvents.onFavorite()
+                                true
+                            } else false
+                        }
+                        else -> false
+                    }
+                } else false
+            }
     ) {
         // Background Image
         Image(
@@ -44,7 +65,7 @@ fun MovieItemScreen(
             contentDescription = "Movie background",
             modifier = Modifier
                 .fillMaxWidth()
-                .height(300.dp) // Increase height for better effect
+                .height(300.dp)
                 .align(Alignment.TopCenter),
             contentScale = ContentScale.Crop
         )
@@ -53,7 +74,7 @@ fun MovieItemScreen(
         Box(
             modifier = Modifier
                 .fillMaxWidth()
-                .height(300.dp) // Same height as the image to overlay on top
+                .height(300.dp)
                 .align(Alignment.TopCenter)
                 .background(
                     Brush.verticalGradient(
@@ -69,27 +90,33 @@ fun MovieItemScreen(
         TopAppBar(
             title = {},
             navigationIcon = {
-                IconButton(onClick = { movieItemStateAndEvents.onNavBack() }) {
+                IconButton(
+                    onClick = { movieItemStateAndEvents.onNavBack() },
+                    modifier = Modifier.size(32.dp) // Increased icon size
+                ) {
                     Icon(
                         Icons.Filled.ArrowBack,
-                        contentDescription = "Back",
-                        modifier = Modifier.size(32.dp) // Increased icon size
+                        contentDescription = "Back"
                     )
                 }
             },
             actions = {
-                IconButton(onClick = { movieItemStateAndEvents.onFavorite() }) {
+                IconButton(
+                    onClick = { movieItemStateAndEvents.onFavorite() },
+                    modifier = Modifier
+                        .size(32.dp)
+                        .onFocusChanged { isFavoriteButtonFocused = it.isFocused }
+                ) {
                     Icon(
                         Icons.Filled.Favorite,
-                        tint = if(uiState.favoriteStatus){Color.Red}else{Color.White},
-                        contentDescription = "Favorite",
-                        modifier = Modifier.size(32.dp) // Increased icon size
+                        tint = if (uiState.favoriteStatus) Color.Red else Color.White,
+                        contentDescription = "Favorite"
                     )
                 }
             },
             colors = TopAppBarDefaults.topAppBarColors(
-                containerColor = Color.Transparent, // Transparent background to let gradient show
-                titleContentColor = Color.Transparent // Transparent title color as we don't need a title here
+                containerColor = Color.Transparent,
+                titleContentColor = Color.Transparent
             ),
             modifier = Modifier
                 .fillMaxWidth()
@@ -102,7 +129,7 @@ fun MovieItemScreen(
             modifier = Modifier
                 .fillMaxWidth()
                 .align(Alignment.TopCenter)
-                .padding(top = 180.dp), // Adjust to place poster below the gradient overlay
+                .padding(top = 180.dp),
             contentAlignment = Alignment.Center
         ) {
             Card(
@@ -125,7 +152,7 @@ fun MovieItemScreen(
         Column(
             modifier = Modifier
                 .fillMaxSize()
-                .padding(top = 320.dp) // Lowered the position of the text
+                .padding(top = 320.dp)
                 .align(Alignment.TopStart)
         ) {
             // Movie Title
@@ -135,7 +162,7 @@ fun MovieItemScreen(
                 modifier = Modifier.fillMaxWidth(),
                 maxLines = 1,
                 overflow = TextOverflow.Ellipsis,
-                color = MaterialTheme.colorScheme.onBackground // Use theme text color
+                color = MaterialTheme.colorScheme.onBackground
             )
 
             Spacer(modifier = Modifier.height(8.dp))
@@ -166,7 +193,6 @@ fun MovieItemScreen(
         }
     }
 }
-
 @Composable
 fun VoteAverageIndicator(voteAverage: Float) {
     // Create a Circular Progress Bar to represent the vote average
@@ -195,26 +221,6 @@ fun VoteAverageIndicator(voteAverage: Float) {
     }
 }
 
-@Preview(showBackground = true)
-@Composable
-fun MovieItemScreenPreview() {
-    val movie = MovieModule(
-        id = 1,
-        title = "The Dark Knight",
-        overview = "When the menace known as the Joker emerges from his mysterious past, he wreaks havoc and chaos on the people of Gotham.",
-        releaseDate = "2008-07-18",
-        mainImgUrl = "https://example.com/movie-poster.jpg",
-        backgroundImgUrl = "https://example.com/movie-background.jpg",
-        voteAverage = 2.4f
-    )
 
-    val movieItemStateAndEvents = MovieItemStateAndEvents(
-        uiState = MovieItemUIState(movieModuleItem = movie,false),
-        onFavorite = { /* Handle Favorite Action */ },
-        onNavBack = { /* Handle Navigate Back Action */ }
-    )
-
-    MovieItemScreen(movieItemStateAndEvents = movieItemStateAndEvents)
-}
 
 

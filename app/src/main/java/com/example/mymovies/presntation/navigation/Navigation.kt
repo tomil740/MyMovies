@@ -50,6 +50,7 @@ fun Navigation() {
             val uiState = viewModel.uiState.collectAsState()
             val beersStateAndEvent = HomeScreenStateAndEvents(uiState = uiState.value,
                 onSorting = { viewModel.onEvent(HomeEvents.OnSorting(it)) },
+                onSortingFail = {viewModel.onEvent(HomeEvents.OnSortError)},
                 navToItem = { navController.navigateSingleTopToItem(it) }
             )
             HomeScreen(homeStatesAndEvents = beersStateAndEvent, onItemNav = {navController.navigateSingleTopToItem(it)})

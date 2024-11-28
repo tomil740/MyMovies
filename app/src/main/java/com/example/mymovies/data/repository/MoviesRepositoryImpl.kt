@@ -46,7 +46,7 @@ class MoviesRepositoryImpl(private val moviesDb: MoviesDatabase, private val rem
                 apiFun = apiFun
             ),
             pagingSourceFactory = {
-                //need to be from anthoer palce(in gneereal not vm job)should cahnge query accoridng to the id
+                //need to be from another palce(in gneereal not vm job)should cahnge query accoridng to the id
                 moviesDb.dao.pagingSource()
             }
         )

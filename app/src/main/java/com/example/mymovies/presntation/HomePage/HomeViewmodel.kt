@@ -17,6 +17,9 @@ class HomeViewmodel@Inject constructor(
     private val movieRepo : MoviesRepository
 ) :ViewModel(){
 
+    private var prevSortId:Int = 1
+
+
     //the private updating mutableStateflow to mange our screen state , basically all of the screen data
     private val _uiState = MutableStateFlow(
         HomeUiState(
@@ -31,9 +34,7 @@ class HomeViewmodel@Inject constructor(
 
     init {
         //the default initialization
-        viewModelScope.launch {
-            //onEvent(HomeEvents.OnSorting(17))
-        }
+        onEvent(HomeEvents.OnSorting(1))
     }
 
      fun onEvent(event: HomeEvents){
@@ -41,13 +42,21 @@ class HomeViewmodel@Inject constructor(
             is HomeEvents.OnSorting -> {
                 //need to sort according to the id which paging to use...
                 viewModelScope.launch {
+                    val theData = movieRepo.getMoviePaging(event.sortId)
+                    prevSortId = uiState.value.sortingOption
                     _uiState.update {
                         it.copy(
                             sortingOption = event.sortId,
-                            dataList = movieRepo.getMoviePaging(event.sortId)
+                            dataList = theData
                                 .cachedIn(viewModelScope)
                         )
                     }
+                }
+            }
+
+            HomeEvents.OnSortError ->{
+                _uiState.update {
+                    it.copy(sortingOption = prevSortId)
                 }
             }
         }
