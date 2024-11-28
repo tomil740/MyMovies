@@ -63,7 +63,7 @@ While Paging 3 is highly efficient, it requires the repository to directly manag
 
 ## How to Run
 
-For detailed instructions on how to run the project, including adding your TMDb API key and setting up the project in Android Studio, please refer to the [How to Run Instructions](./how-to-run.html).
+For detailed instructions on how to run the project, including adding your TMDb API key and setting up the project in Android Studio, please refer to the [How to Run Instructions](./readme.html).
 
 ---
 
