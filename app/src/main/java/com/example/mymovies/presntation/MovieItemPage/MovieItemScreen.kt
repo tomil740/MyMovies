@@ -20,7 +20,6 @@ import androidx.compose.ui.unit.dp
 import coil.compose.rememberImagePainter
 import androidx.compose.ui.text.style.TextOverflow
 import com.example.mymovies.domain.models.MovieModule
-import com.plcoding.composepaging3caching.presentation.movieItemPage.MovieItemStateAndEvents
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable

@@ -1,6 +1,9 @@
 package com.plcoding.composepaging3caching.presentation.movieItemPage;
 
 import androidx.lifecycle.ViewModel;
+
+import com.example.mymovies.presntation.MovieItemPage.MovieItemViewModel;
+
 import dagger.Binds;
 import dagger.Module;
 import dagger.Provides;
@@ -29,7 +32,7 @@ public final class MovieItemViewModel_HiltModules {
 
     @Binds
     @IntoMap
-    @StringKey("com.plcoding.composepaging3caching.presentation.movieItemPage.MovieItemViewModel")
+    @StringKey("com.example.mymovies.presntation.MovieItemPage.MovieItemViewModel")
     @HiltViewModelMap
     public abstract ViewModel binds(MovieItemViewModel vm);
   }
@@ -44,7 +47,7 @@ public final class MovieItemViewModel_HiltModules {
     @IntoSet
     @HiltViewModelMap.KeySet
     public static String provide() {
-      return "com.plcoding.composepaging3caching.presentation.movieItemPage.MovieItemViewModel";
+      return "com.example.mymovies.presntation.MovieItemPage.MovieItemViewModel";
     }
   }
 }

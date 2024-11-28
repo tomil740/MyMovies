@@ -11,6 +11,7 @@ import com.example.mymovies.data.mapers.toMovie
 import com.example.mymovies.data.mapers.toMovieListItem
 import com.example.mymovies.data.remote.BeerRemoteMediator
 import com.example.mymovies.data.remote.RemoteDao
+import com.example.mymovies.data.util.Result
 import com.example.mymovies.domain.models.MovieListItem
 import com.example.mymovies.domain.models.MovieModule
 import com.example.mymovies.domain.repository.MoviesRepository
@@ -56,6 +57,10 @@ class MoviesRepositoryImpl(private val moviesDb: MoviesDatabase, private val rem
 
     override suspend fun getMovieById(id: Int): MovieModule {
         return moviesDb.dao.getMovieById(id).toMovie()
+    }
+
+    override suspend fun getFavoriteStatuesById(id: Int): Result<Boolean> {
+        return remoteDao.getFavoriteStatuesById(id)
     }
 }
 

@@ -1,6 +1,7 @@
 package com.example.mymovies.data.remote
 
 import android.util.Log
+import com.example.mymovies.data.remote.dtoModels.IsFavoriteDto
 import com.google.gson.Gson
 import com.example.mymovies.data.remote.dtoModels.ResponseDto
 import com.example.mymovies.data.util.Result
@@ -54,8 +55,6 @@ class RemoteDao(private val okHttpClient: OkHttpClient) {
         val request = Request.Builder()
             .url("https://api.themoviedb.org/3/movie/now_playing?language=en-US&page=${page}&per_page=${perPage}")
             .get()
-            .addHeader("accept", "application/json")
-            .addHeader("Authorization", "Bearer eyJhbGciOiJIUzI1NiJ9.eyJhdWQiOiI4NzJmZTY5MTk3MWUyNjMyOTJhMTJmZjQ1NDllNWVhMSIsIm5iZiI6MTczMjY0MjMwNS4zNjc1MjU4LCJzdWIiOiI2NzQ2MDRiNzA4MDUyYjk2MGMwNDFmZmYiLCJzY29wZXMiOlsiYXBpX3JlYWQiXSwidmVyc2lvbiI6MX0.DPBGAGP1rl9DgMaewKnyphe9xx8H7pAcyHNukblhFQ8")
             .build()
 
         return try {
@@ -78,6 +77,32 @@ class RemoteDao(private val okHttpClient: OkHttpClient) {
             Result.Error(e)
         }
 
+    }
+
+    suspend fun getFavoriteStatuesById(itemId:Int): Result<Boolean>{
+        val request = Request.Builder()
+            .url("https://api.themoviedb.org/3/movie/$itemId/favorite")
+            .get()
+            .build()
+
+        return try {
+            val response: Response = withContext(Dispatchers.IO) {
+                okHttpClient.newCall(request).execute()
+            }
+            if (response.isSuccessful) {
+
+                val json = response.body?.string() ?: ""
+                Log.i("AAA","the json resposnse ${json}")
+                val gson = Gson()
+                val isFavoriteRes = gson.fromJson(json, IsFavoriteDto::class.java)
+                Result.Success(isFavoriteRes.favorite)
+            } else {
+                Result.Error(Exception("API call failed with code: ${response.code}"))
+            }
+        } catch (e: Exception) {
+            Log.i("AAA2","httprequest error$e")
+            Result.Error(e)
+        }
     }
 
 

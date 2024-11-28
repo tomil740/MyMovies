@@ -1,11 +1,9 @@
-package com.plcoding.composepaging3caching.presentation.movieItemPage
+package com.example.mymovies.presntation.MovieItemPage
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.mymovies.domain.models.MovieModule
 import com.example.mymovies.domain.repository.MoviesRepository
-import com.example.mymovies.presntation.MovieItemPage.MovieItemEvents
-import com.example.mymovies.presntation.MovieItemPage.MovieItemUIState
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
@@ -21,7 +19,7 @@ class MovieItemViewModel@Inject constructor(
 
     //the private updating mutableStateflow to mange our screen state , basically all of the screen data
     private val _uiState = MutableStateFlow(
-        MovieItemUIState(
+        MovieItemUIState(favoriteStatus = false,
             movieModuleItem = MovieModule(-1, ",njkbk","2fddsf",8f,"dsfdsf","","")
         )
     )
@@ -36,7 +34,8 @@ class MovieItemViewModel@Inject constructor(
                 //get the item from our local db
                 viewModelScope.launch {
                      val theObj = moviesRepo.getMovieById(event.id.toInt())
-                     _uiState.update { it.copy(movieModuleItem = theObj)
+                     val favoriteStatus = moviesRepo.getFavoriteStatuesById(event.id.toInt())
+                     _uiState.update { it.copy(movieModuleItem = theObj ,favoriteStatus= favoriteStatus)
                     }
                 }
             }

@@ -42,17 +42,17 @@ import com.example.mymovies.domain.models.MovieListItem
 @Composable
 fun HomeScreen(
     onItemNav: (String) -> Unit,
-    beers: HomeScreenStateAndEvents
+    homeStatesAndEvents: HomeScreenStateAndEvents
 ) {
     val context = LocalContext.current
-    val beersData = beers.uiState.dataList?.collectAsLazyPagingItems()
+    val moviesData = homeStatesAndEvents.uiState.dataList?.collectAsLazyPagingItems()
 
     // Handle error states
-    LaunchedEffect(key1 = beersData?.loadState) {
-        if (beersData?.loadState?.refresh is LoadState.Error) {
+    LaunchedEffect(key1 = moviesData?.loadState) {
+        if (moviesData?.loadState?.refresh is LoadState.Error) {
             Toast.makeText(
                 context,
-                "Error: ${(beersData.loadState.refresh as LoadState.Error).error.message}",
+                "Error: ${(moviesData.loadState.refresh as LoadState.Error).error.message}",
                 Toast.LENGTH_LONG
             ).show()
         }
@@ -63,19 +63,19 @@ fun HomeScreen(
         Column(modifier = Modifier.fillMaxSize()) {
             // TopAppBar (fixed at the top)
             HomeTopBar(
-                userName = beers.uiState.userName,
-                isLoggedIn = beers.uiState.userName.isNotEmpty(),
+                userName = homeStatesAndEvents.uiState.userName,
+                isLoggedIn = homeStatesAndEvents.uiState.userName.isNotEmpty(),
                 onLoginClick = { /* Handle login action */ }
             )
 
             // Sorting Menu (fixed at the top)
             SortMenu(
-                selectedOption = beers.uiState.sortingOption,
-                onSortSelected = { beers.onSorting(it) }
+                selectedOption = homeStatesAndEvents.uiState.sortingOption,
+                onSortSelected = { homeStatesAndEvents.onSorting(it) }
             )
 
             // Movie List (scrollable independently below the top bar)
-            MovieList(beersData = beersData, onItemNav = onItemNav)
+            MovieList(beersData = moviesData, onItemNav = onItemNav)
         }
     }
 }

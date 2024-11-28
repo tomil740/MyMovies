@@ -2,6 +2,8 @@
 package com.plcoding.composepaging3caching.presentation.movieItemPage;
 
 import com.example.mymovies.domain.repository.MoviesRepository;
+import com.example.mymovies.presntation.MovieItemPage.MovieItemViewModel;
+
 import dagger.internal.DaggerGenerated;
 import dagger.internal.Factory;
 import dagger.internal.QualifierMetadata;

@@ -15,8 +15,8 @@ import com.example.mymovies.presntation.HomePage.HomeScreenStateAndEvents
 import com.example.mymovies.presntation.HomePage.HomeViewmodel
 import com.example.mymovies.presntation.MovieItemPage.MovieItemEvents
 import com.example.mymovies.presntation.MovieItemPage.MovieItemScreen
-import com.plcoding.composepaging3caching.presentation.movieItemPage.MovieItemStateAndEvents
-import com.plcoding.composepaging3caching.presentation.movieItemPage.MovieItemViewModel
+import com.example.mymovies.presntation.MovieItemPage.MovieItemStateAndEvents
+import com.example.mymovies.presntation.MovieItemPage.MovieItemViewModel
 
 @Composable
 fun Navigation() {
@@ -52,7 +52,7 @@ fun Navigation() {
                 onSorting = { viewModel.onEvent(HomeEvents.OnSorting(it)) },
                 navToItem = { navController.navigateSingleTopToItem(it) }
             )
-            HomeScreen(beers = beersStateAndEvent, onItemNav = {navController.navigateSingleTopToItem(it)})
+            HomeScreen(homeStatesAndEvents = beersStateAndEvent, onItemNav = {navController.navigateSingleTopToItem(it)})
         }
 
         composable(

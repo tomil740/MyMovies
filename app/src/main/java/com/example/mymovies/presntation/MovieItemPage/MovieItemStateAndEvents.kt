@@ -1,4 +1,4 @@
-package com.plcoding.composepaging3caching.presentation.movieItemPage
+package com.example.mymovies.presntation.MovieItemPage
 
 import com.example.mymovies.presntation.MovieItemPage.MovieItemUIState
 
