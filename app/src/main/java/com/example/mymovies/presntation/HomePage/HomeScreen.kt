@@ -147,16 +147,18 @@ fun MovieList(
     ) {
         if (moviesData != null) {
             itemsIndexed(moviesData) { index, movie ->
-                val isFocused = focusedIndex == index
-                MovieItem(
-                    movie = movie!!,
-                    onFavoriteClick = { onItemNav(movie.id.toString()) },
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .background(if (isFocused) Color.LightGray else Color.Transparent)
-                        .focusable()
-                        .clickable { onItemNav(movie.id.toString()) }
-                )
+                if (movie != null) {
+                    val isFocused = focusedIndex == index
+                    MovieItem(
+                        movie = movie,
+                        onFavoriteClick = { onItemNav(movie.id.toString()) },
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .background(if (isFocused) Color.LightGray else Color.Transparent)
+                            .focusable()
+                            .clickable { onItemNav(movie.id.toString()) }
+                    )
+                }
             }
         }
     }
@@ -206,7 +208,7 @@ fun SortMenu(
     val scrollState = rememberScrollState()
     val coroutineScope = rememberCoroutineScope()
     val sortOptions = listOf("My Favorites", "Popular", "Currently Broadcast")
-    var focusedIndex by remember { mutableIntStateOf(selectedOption) }
+    var focusedIndex by remember { mutableIntStateOf(-1) }
 
     Row(
         modifier = Modifier
@@ -246,15 +248,15 @@ fun SortMenu(
         sortOptions.forEachIndexed { index, option ->
             ElevatedButton(
                 onClick = { onSortSelected(index) },
-                modifier = Modifier.padding(4.dp),
+                modifier = if (index == focusedIndex){Modifier.padding(4.dp).background(Color.Red)}else{Modifier.padding(4.dp)},
                 colors = ButtonDefaults.buttonColors(
-                    containerColor = if (index == focusedIndex) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.surfaceVariant
+                    containerColor = if (index == selectedOption) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.surfaceVariant
                 )
             ) {
                 Text(
                     text = option,
                     style = MaterialTheme.typography.bodyMedium,
-                    color = if (index == focusedIndex) MaterialTheme.colorScheme.onPrimary else MaterialTheme.colorScheme.onSurface
+                    color = if (index == selectedOption) MaterialTheme.colorScheme.onPrimary else MaterialTheme.colorScheme.onSurface
                 )
             }
         }

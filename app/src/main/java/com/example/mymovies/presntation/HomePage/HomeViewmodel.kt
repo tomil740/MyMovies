@@ -23,7 +23,7 @@ class HomeViewmodel@Inject constructor(
     //the private updating mutableStateflow to mange our screen state , basically all of the screen data
     private val _uiState = MutableStateFlow(
         HomeUiState(
-            sortingOption = 17,
+            sortingOption = 1,
             dataList = null,
             userName = "Tomi"
         )
