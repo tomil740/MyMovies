@@ -34,7 +34,6 @@ class MoviesRemoteMediator(
                 )
                 // TODO: need to be improved...
                 LoadType.APPEND -> {
-                    //dose note work
                     val lastItem = state.lastItemOrNull()
 
                     if(lastItem == null) {
@@ -61,7 +60,6 @@ class MoviesRemoteMediator(
                             movieDb.dao.clearAll()
                         }
                         //map the resultes to db entity
-                        Log.i("working","${apiResponse.data.page} and the name of ${apiResponse.data.results}")
                        val movieEntities = apiResponse.data.results.map { it.toMovieEntity(apiResponse.data.page) }
                         movieDb.dao.upsertAll(movieEntities)
                     }

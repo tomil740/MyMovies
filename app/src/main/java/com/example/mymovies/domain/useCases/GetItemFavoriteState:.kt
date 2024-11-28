@@ -1,8 +1,7 @@
 package com.example.mymovies.domain.useCases
 
-import android.util.Log
-import com.example.mymovies.domain.util.Result
 import com.example.mymovies.domain.repository.MoviesRepository
+import com.example.mymovies.domain.util.Result
 
 
 /*

@@ -21,58 +21,57 @@ import com.example.mymovies.presntation.MovieItemPage.MovieItemViewModel
 @Composable
 fun Navigation() {
 
-    //set the nav controller for this app navigation
     val navController = rememberNavController()
 
-    fun NavHostController.navigateSingleTopTo(route: String) {
-        if (route == "home") {
-            this.navigate("home") {
-                launchSingleTop = true
-            }
-        } else {
-            this.navigate("itemPage")
+    // Utility function for handling "singleTop" navigation (to avoid duplicate screens in back stack)
+    fun NavHostController.navigateSingleTop(route: String) {
+        this.navigate(route) {
+            launchSingleTop = true
+            restoreState = true // Keeps the state if navigating to the same screen
+            popUpTo(route) { inclusive = true } // Prevents multiple instances in back stack
         }
     }
-    fun NavHostController.navigateSingleTopToItem(itemId: String = "-1") {
 
-            this.navigate("itemPage/${itemId}")
-
+    // Utility function for handling item detail navigation
+    fun NavHostController.navigateToItem(itemId: String) {
+        this.navigate("itemPage/$itemId")
     }
 
-
-    //set the navHost which will be the current route to present to the user
+    // Start NavHost
     NavHost(
         navController = navController,
         startDestination = "home"
     ) {
+        // Home Screen
         composable(route = "home") {
             val viewModel = hiltViewModel<HomeViewmodel>()
             val uiState = viewModel.uiState.collectAsState()
-            val beersStateAndEvent = HomeScreenStateAndEvents(uiState = uiState.value,
+            val homeScreenStateAndEvents = HomeScreenStateAndEvents(
+                uiState = uiState.value,
                 onSorting = { viewModel.onEvent(HomeEvents.OnSorting(it)) },
-                onSortingFail = {viewModel.onEvent(HomeEvents.OnSortError)},
-                navToItem = { navController.navigateSingleTopToItem(it) }
+                onSortingFail = { viewModel.onEvent(HomeEvents.OnSortError) },
+                navToItem = { navController.navigateToItem(it) }
             )
-            HomeScreen(homeStatesAndEvents = beersStateAndEvent, onItemNav = {navController.navigateSingleTopToItem(it)})
+            HomeScreen(homeStatesAndEvents = homeScreenStateAndEvents, onItemNav = { navController.navigateToItem(it) })
         }
 
+        // Movie Item Page (Details Page)
         composable(
             route = "itemPage/{itemId}",
             arguments = listOf(navArgument("itemId") { type = NavType.StringType })
-
-        ) {
-            val theArg = it.arguments?.getString(("itemId")) ?: "-1"
+        ) { backStackEntry ->
+            val itemId = backStackEntry.arguments?.getString("itemId") ?: "-1"
             val viewModel = hiltViewModel<MovieItemViewModel>()
-            //todo check if the value is beset practice....
-            viewModel.onEvent(MovieItemEvents.InitItem(theArg))
+            viewModel.onEvent(MovieItemEvents.InitItem(itemId))
+
             val uiState = viewModel.uiState.collectAsState().value
-            val movieItemStateAndEvents = MovieItemStateAndEvents(uiState = uiState, onFavorite = {viewModel.onEvent(MovieItemEvents.OnFavorite)},
-                onNavBack = {navController.navigateSingleTopTo("home")})
+            val movieItemStateAndEvents = MovieItemStateAndEvents(
+                uiState = uiState,
+                onFavorite = { viewModel.onEvent(MovieItemEvents.OnFavorite) },
+                onNavBack = { navController.navigateSingleTop("home") } // Back to home
+            )
 
             MovieItemScreen(movieItemStateAndEvents = movieItemStateAndEvents)
-
-
         }
-
     }
 }

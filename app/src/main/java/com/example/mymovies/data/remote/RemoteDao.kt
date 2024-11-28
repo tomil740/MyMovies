@@ -1,6 +1,5 @@
 package com.example.mymovies.data.remote
 
-import android.util.Log
 import com.example.mymovies.data.remote.dtoModels.AllMoviesIdDto
 import com.example.mymovies.data.remote.dtoModels.IsFavoriteDto
 import com.google.gson.Gson
@@ -104,7 +103,6 @@ class RemoteDao(private val okHttpClient: OkHttpClient) {
     }
 
     suspend fun setFavoriteStateById(itemId:Int,status:Boolean): Result<Boolean> {
-        Log.i("AAA3","myFavo staers")
 
         val mediaType = "application/json".toMediaTypeOrNull()
         val body = RequestBody.create(mediaType, """
@@ -125,21 +123,17 @@ class RemoteDao(private val okHttpClient: OkHttpClient) {
             val response: Response = withContext(Dispatchers.IO) {
                 okHttpClient.newCall(request).execute()
             }
-            Log.i("AAA3","myFavo tries")
 
             if (response.isSuccessful) {
 
                 val json = response.body?.string() ?: ""
-                Log.i("AAA3","the json resposnse ${json}")
                 val gson = Gson()
                 val isFavoriteRes = gson.fromJson(json, IsFavoriteDto::class.java)
-                Result.Success(true)
+                Result.Success(isFavoriteRes.success)
             } else {
-                Log.i("AAA3","Api call fail with ${response.code}")
                 Result.Error(Exception("API call failed with code: ${response.code}"))
             }
         } catch (e: Exception) {
-            Log.i("AAA3","httprequest error$e")
             Result.Error(e)
         }
     }
@@ -153,23 +147,19 @@ class RemoteDao(private val okHttpClient: OkHttpClient) {
             .build()
 
         return try {
-            Log.i("AAA4","Try")
             val response: Response = withContext(Dispatchers.IO) {
                 okHttpClient.newCall(request).execute()
             }
             if (response.isSuccessful) {
                 val json = response.body?.string() ?: ""
-                Log.i("AAA4","good,${json}")
                 val gson = Gson()
                 val movieResponse = gson.fromJson(json, AllMoviesIdDto::class.java)
                 Result.Success(movieResponse.results.map { it.id })
             } else {
-                Log.i("AAA4","fail ${response.code}")
 
                 Result.Error(Exception("API call failed with code: ${response.code}"))
             }
         } catch (e: Exception) {
-            Log.i("AAA4","fail ${e}")
             Result.Error(e)
         }
     }
