@@ -1,5 +1,6 @@
 package com.example.mymovies.presntation.MovieItemPage
 
+import android.util.Log
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
@@ -28,6 +29,8 @@ fun MovieItemScreen(
 ) {
     val uiState = movieItemStateAndEvents.uiState
     val movie = uiState.movieModuleItem
+
+
 
     Box(
         modifier = Modifier
@@ -78,6 +81,7 @@ fun MovieItemScreen(
                 IconButton(onClick = { movieItemStateAndEvents.onFavorite() }) {
                     Icon(
                         Icons.Filled.Favorite,
+                        tint = if(uiState.favoriteStatus){Color.Red}else{Color.White},
                         contentDescription = "Favorite",
                         modifier = Modifier.size(32.dp) // Increased icon size
                     )
@@ -205,7 +209,7 @@ fun MovieItemScreenPreview() {
     )
 
     val movieItemStateAndEvents = MovieItemStateAndEvents(
-        uiState = MovieItemUIState(movieModuleItem = movie),
+        uiState = MovieItemUIState(movieModuleItem = movie,false),
         onFavorite = { /* Handle Favorite Action */ },
         onNavBack = { /* Handle Navigate Back Action */ }
     )

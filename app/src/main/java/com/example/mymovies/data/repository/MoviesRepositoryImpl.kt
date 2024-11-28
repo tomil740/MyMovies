@@ -9,9 +9,9 @@ import androidx.paging.map
 import com.example.mymovies.data.local.MoviesDatabase
 import com.example.mymovies.data.mapers.toMovie
 import com.example.mymovies.data.mapers.toMovieListItem
-import com.example.mymovies.data.remote.BeerRemoteMediator
+import com.example.mymovies.data.remote.MoviesRemoteMediator
 import com.example.mymovies.data.remote.RemoteDao
-import com.example.mymovies.data.util.Result
+import com.example.mymovies.domain.util.Result
 import com.example.mymovies.domain.models.MovieListItem
 import com.example.mymovies.domain.models.MovieModule
 import com.example.mymovies.domain.repository.MoviesRepository
@@ -32,15 +32,16 @@ class MoviesRepositoryImpl(private val moviesDb: MoviesDatabase, private val rem
 
 
         //get the matched sorting method from the remote dao...Todo
-        Log.i("AA","work withj ${sortingId}")
         val apiFun =when(sortingId){
-            2->remoteDao::getPopularMovies
-            else -> {remoteDao::getCurrentlyBroadcastMovies}
+            0->remoteDao::getAccountFavoritesMovies
+            1->remoteDao::getPopularMovies
+            2-> remoteDao::getCurrentlyBroadcastMovies
+            else->{remoteDao::getPopularMovies}
         }
 
         return Pager(
-            config = PagingConfig(pageSize = sortingId),
-            remoteMediator = BeerRemoteMediator(
+            config = PagingConfig(pageSize = 20),
+            remoteMediator = MoviesRemoteMediator(
                 movieDb = moviesDb,
                 apiFun = apiFun
             ),
@@ -59,8 +60,12 @@ class MoviesRepositoryImpl(private val moviesDb: MoviesDatabase, private val rem
         return moviesDb.dao.getMovieById(id).toMovie()
     }
 
-    override suspend fun getFavoriteStatuesById(id: Int): Result<Boolean> {
-        return remoteDao.getFavoriteStatuesById(id)
+    override suspend fun setFavorItemStatuesById(id: Int, statues:Boolean): Result<Boolean> {
+        return remoteDao.setFavoriteStateById(id,statues)
+    }
+
+    override suspend fun getAllFavoriteItemsId(): Result<List<Int>> {
+        return remoteDao.getAccountAllFavoritesMoviesIds()
     }
 }
 

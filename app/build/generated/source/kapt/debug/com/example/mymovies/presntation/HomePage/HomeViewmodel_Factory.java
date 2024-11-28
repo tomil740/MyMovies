@@ -18,22 +18,22 @@ import javax.inject.Provider;
     "KotlinInternalInJava"
 })
 public final class HomeViewmodel_Factory implements Factory<HomeViewmodel> {
-  private final Provider<MoviesRepository> beerRepoProvider;
+  private final Provider<MoviesRepository> movieRepoProvider;
 
-  public HomeViewmodel_Factory(Provider<MoviesRepository> beerRepoProvider) {
-    this.beerRepoProvider = beerRepoProvider;
+  public HomeViewmodel_Factory(Provider<MoviesRepository> movieRepoProvider) {
+    this.movieRepoProvider = movieRepoProvider;
   }
 
   @Override
   public HomeViewmodel get() {
-    return newInstance(beerRepoProvider.get());
+    return newInstance(movieRepoProvider.get());
   }
 
-  public static HomeViewmodel_Factory create(Provider<MoviesRepository> beerRepoProvider) {
-    return new HomeViewmodel_Factory(beerRepoProvider);
+  public static HomeViewmodel_Factory create(Provider<MoviesRepository> movieRepoProvider) {
+    return new HomeViewmodel_Factory(movieRepoProvider);
   }
 
-  public static HomeViewmodel newInstance(MoviesRepository beerRepo) {
-    return new HomeViewmodel(beerRepo);
+  public static HomeViewmodel newInstance(MoviesRepository movieRepo) {
+    return new HomeViewmodel(movieRepo);
   }
 }

@@ -161,7 +161,7 @@ fun SortMenu(
     selectedOption: Int,
     onSortSelected: (Int) -> Unit
 ) {
-    val sortOptions = listOf("Popularity", "Rating", "Release Date")
+    val sortOptions = listOf("my favorites", "popular", "currently broadcast")
     val scrollState = rememberScrollState()
 
     Row(

@@ -7,6 +7,7 @@ import com.example.mymovies.data.remote.RemoteDao
 import com.example.mymovies.data.remote.factory.OkHttpClientModule
 import com.example.mymovies.data.repository.MoviesRepositoryImpl
 import com.example.mymovies.domain.repository.MoviesRepository
+import com.example.mymovies.domain.useCases.GetItemFavoriteState
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -46,6 +47,10 @@ object AppModule {
         return MoviesRepositoryImpl(beerDb,remoteDao)
     }
 
+    @Provides
+    fun provideGetItemFav(repo:MoviesRepository): GetItemFavoriteState {
+        return GetItemFavoriteState(repo)
+    }
 
 
 }

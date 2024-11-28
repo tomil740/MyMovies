@@ -14,7 +14,7 @@ import javax.inject.Inject
 
 @HiltViewModel
 class HomeViewmodel@Inject constructor(
-    private val beerRepo : MoviesRepository
+    private val movieRepo : MoviesRepository
 ) :ViewModel(){
 
     //the private updating mutableStateflow to mange our screen state , basically all of the screen data
@@ -44,7 +44,7 @@ class HomeViewmodel@Inject constructor(
                     _uiState.update {
                         it.copy(
                             sortingOption = event.sortId,
-                            dataList = beerRepo.getMoviePaging(event.sortId)
+                            dataList = movieRepo.getMoviePaging(event.sortId)
                                 .cachedIn(viewModelScope)
                         )
                     }
