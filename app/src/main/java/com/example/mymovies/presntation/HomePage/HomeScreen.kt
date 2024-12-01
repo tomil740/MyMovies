@@ -13,12 +13,13 @@ import androidx.paging.compose.collectAsLazyPagingItems
 import com.example.mymovies.presntation.HomePage.uiComponents.HomeTopBar
 import com.example.mymovies.presntation.HomePage.uiComponents.MovieList
 import com.example.mymovies.presntation.HomePage.uiComponents.SortMenu
+import kotlinx.coroutines.flow.MutableStateFlow
 
 
 @Composable
 fun HomeScreen(
     onItemNav: (String) -> Unit,
-    homeStatesAndEvents: HomeScreenStateAndEvents
+    homeStatesAndEvents: HomeScreenStateAndEvents,
 ) {
     val context = LocalContext.current
     val moviesData = homeStatesAndEvents.uiState.dataList?.collectAsLazyPagingItems()
@@ -52,7 +53,9 @@ fun HomeScreen(
             )
 
             // Movie List (scrollable independently below the top bar)
-            MovieList(moviesData = moviesData, onItemNav = onItemNav)
+            if (moviesData != null) {
+                MovieList(moviesData = moviesData, onItemNav = onItemNav)
+            }
         }
     }
 }

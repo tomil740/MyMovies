@@ -6,6 +6,7 @@ import androidx.room.PrimaryKey
 @Entity
 data class MovieEntity(
     val page:Int,
+    val fetchedAt: Long, // Timestamp indicating when the data was fetched
     val adult: Boolean,
     val backdropPath: String?,
     val genreIds: String?,

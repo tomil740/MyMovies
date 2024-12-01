@@ -6,8 +6,8 @@ import com.example.mymovies.data.local.MovieDao
 import com.example.mymovies.data.local.MovieEntity
 
 @Database(
-    entities = [MovieEntity::class],
-    version = 5
+    entities = [MovieEntity::class,SortingMovieMappingEntity::class],
+    version = 7
 )
 abstract class MoviesDatabase: RoomDatabase() {
 

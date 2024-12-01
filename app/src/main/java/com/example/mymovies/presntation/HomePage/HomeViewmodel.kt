@@ -1,12 +1,17 @@
 package com.example.mymovies.presntation.HomePage
 
+import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import androidx.paging.cachedIn
+import androidx.paging.filter
+import androidx.paging.map
 import com.example.mymovies.domain.repository.MoviesRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.flatMapConcat
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
@@ -39,9 +44,8 @@ class HomeViewmodel@Inject constructor(
 
      fun onEvent(event: HomeEvents){
         when(event){
-            is HomeEvents.OnSorting -> {
-                //need to sort according to the id which paging to use...
-                viewModelScope.launch {
+             is HomeEvents.OnSorting -> {
+                 viewModelScope.launch {
                     val theData = movieRepo.getMoviePaging(event.sortId)
                     prevSortId = uiState.value.sortingOption
                     _uiState.update {
@@ -54,10 +58,15 @@ class HomeViewmodel@Inject constructor(
                 }
             }
 
-            HomeEvents.OnSortError ->{
+             HomeEvents.OnSortError ->{
                 _uiState.update {
                     it.copy(sortingOption = prevSortId)
                 }
+            }
+
+            // Add any additional event types here
+            else -> {
+
             }
         }
 

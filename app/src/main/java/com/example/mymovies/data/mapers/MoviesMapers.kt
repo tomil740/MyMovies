@@ -21,7 +21,8 @@ fun MovieDto.toMovieEntity(pageIndex:Int): MovieEntity {
         video = this.video,
         voteAverage = this.vote_average,
         voteCount = this.vote_count,
-        page = pageIndex
+        page = pageIndex,
+        fetchedAt = System.currentTimeMillis() // Set the current time
     )
 }
 

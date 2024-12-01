@@ -47,6 +47,7 @@ android {
         }
     }
 }
+def paging_version = "3.2.1"
 
 dependencies {
 
@@ -61,12 +62,22 @@ dependencies {
     implementation(libs.androidx.room.ktx)
     kapt(libs.androidx.room.compiler)
 
-    //implementation(libs.paging.runtime.ktx)
-    //implementation(libs.paging.compose)
+
+    // Paging
     // Paging
     implementation "androidx.paging:paging-runtime-ktx:3.1.1"
     implementation "androidx.paging:paging-compose:1.0.0-alpha18"
+
+    // Room Paging (for Room + Paging integration)
     implementation "androidx.room:room-paging:2.5.1"
+
+    // Paging Compose (for Jetpack Compose)
+
+    // Paging Runtime (core functionality for paging)
+
+
+
+
 
 
     implementation(libs.coil.compose)
@@ -85,6 +96,7 @@ dependencies {
     androidTestImplementation(libs.androidx.ui.test.junit4)
     debugImplementation(libs.androidx.ui.tooling)
     debugImplementation(libs.androidx.ui.test.manifest)
+
 
 
 }
