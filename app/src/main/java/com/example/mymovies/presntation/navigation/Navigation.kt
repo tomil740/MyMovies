@@ -50,7 +50,8 @@ fun Navigation() {
                 uiState = uiState.value,
                 onSorting = { viewModel.onEvent(HomeEvents.OnSorting(it)) },
                 onSortingFail = { viewModel.onEvent(HomeEvents.OnSortError) },
-                navToItem = { navController.navigateToItem(it) }
+                navToItem = { navController.navigateToItem(it) },
+                onError = {viewModel.onEvent(HomeEvents.OnError(it))}
             )
             HomeScreen(homeStatesAndEvents = homeScreenStateAndEvents, onItemNav = { navController.navigateToItem(it) })
         }

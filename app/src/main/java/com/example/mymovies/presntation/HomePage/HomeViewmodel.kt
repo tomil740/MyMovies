@@ -8,7 +8,9 @@ import androidx.paging.filter
 import androidx.paging.map
 import com.example.mymovies.domain.repository.MoviesRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.flatMapConcat
@@ -24,13 +26,16 @@ class HomeViewmodel@Inject constructor(
 
     private var prevSortId:Int = 1
 
+    private val _errorState = MutableSharedFlow<String>(replay = 1)
+    val errorState: SharedFlow<String> get() = _errorState
 
     //the private updating mutableStateflow to mange our screen state , basically all of the screen data
     private val _uiState = MutableStateFlow(
         HomeUiState(
             sortingOption = 1,
             dataList = null,
-            userName = "Tomi"
+            userName = "Tomi",
+            errorObserver = errorState
         )
     )
     //the observable stateflow ui state that is listening to the original ui state
@@ -46,7 +51,7 @@ class HomeViewmodel@Inject constructor(
         when(event){
              is HomeEvents.OnSorting -> {
                  viewModelScope.launch {
-                    val theData = movieRepo.getMoviePaging(event.sortId)
+                    val theData = movieRepo.getMoviePaging(event.sortId, errorObserver = _errorState)
                     prevSortId = uiState.value.sortingOption
                     _uiState.update {
                         it.copy(
@@ -64,9 +69,10 @@ class HomeViewmodel@Inject constructor(
                 }
             }
 
-            // Add any additional event types here
-            else -> {
-
+            is HomeEvents.OnError -> {
+                viewModelScope.launch {
+                    _errorState.emit(event.error)
+                }
             }
         }
 

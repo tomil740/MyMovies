@@ -15,8 +15,14 @@ import com.example.mymovies.domain.util.Result
 import com.example.mymovies.domain.models.MovieListItem
 import com.example.mymovies.domain.models.MovieModule
 import com.example.mymovies.domain.repository.MoviesRepository
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.MutableSharedFlow
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.launch
 
 
 class MoviesRepositoryImpl(private val moviesDb: MoviesDatabase, private val remoteDao: RemoteDao):
@@ -27,7 +33,7 @@ class MoviesRepositoryImpl(private val moviesDb: MoviesDatabase, private val rem
      the data sources in the paging mangement lib for maxmimum effecency so there is now way around it.
      */
     @OptIn(ExperimentalPagingApi::class)
-    override suspend fun getMoviePaging(sortingId: Int): Flow<PagingData<MovieListItem>> {
+    override suspend fun getMoviePaging(sortingId: Int,errorObserver:MutableSharedFlow<String>): Flow<PagingData<MovieListItem>> {
         // Get the corresponding API function based on the sortingId
         val apiFun = when (sortingId) {
             0 -> remoteDao::getAccountFavoritesMovies
@@ -46,7 +52,7 @@ class MoviesRepositoryImpl(private val moviesDb: MoviesDatabase, private val rem
             ),
             pagingSourceFactory = {
                 // Use the MoviesPagingSource with the selected API function and sortingId
-                MoviesPagingSource(apiFun, sortingId,moviesDb)
+                MoviesPagingSource(apiFun, sortingId,moviesDb,errorObserver)
             }
         )
             .flow

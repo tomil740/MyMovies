@@ -10,91 +10,91 @@ import com.example.mymovies.data.local.SortingMovieMappingEntity
 import com.example.mymovies.data.mapers.toMovieEntity
 import com.example.mymovies.data.remote.dtoModels.ResponseDto
 import com.example.mymovies.domain.util.Result
+import kotlinx.coroutines.flow.MutableSharedFlow
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.update
 
 class MoviesPagingSource(
-    private val apiFun: suspend (Int) -> Result<ResponseDto>, // API function for fetching movies (expects a page number)
-    private val sortingId: Int, // Sorting identifier (used to associate the movies with a specific sorting type)
-    private val movieDao: MoviesDatabase, // DAO to interact with the local database
+    private val apiFun: suspend (Int) -> Result<ResponseDto>, // API function
+    private val sortingId: Int, // Sorting identifier
+    private val movieDao: MoviesDatabase, // DAO for local DB operations
+    private val onErrorFlow: MutableSharedFlow<String> // SharedFlow to emit error messages
 ) : PagingSource<Int, MovieEntity>() {
 
-    // This method is responsible for loading data for each page requested
     override suspend fun load(params: LoadParams<Int>): LoadResult<Int, MovieEntity> {
         val currentPage = params.key ?: 1
-        return try {
-            // Threshold for data expiration (e.g., 7 days ago)
-            val EXPIRY_THRESHOLD = 7L * 24 * 60 * 60 * 1000 // 7 days in milliseconds
-            // Clean old data before loading new data
-            movieDao.dao.deleteOldMoviesAndMappings(EXPIRY_THRESHOLD)
+        var apiFailed = false
+        var apiSucceeded = false
 
-            // Call the API function to fetch data
+        try {
+            // Attempt to fetch data from the API
             val apiResponse = apiFun.invoke(currentPage)
 
-            when (apiResponse) {
-                is Result.Success -> {
-                    val results = apiResponse.data.results
+            if (apiResponse is Result.Success) {
+                val results = apiResponse.data.results
+                apiSucceeded = true
 
-                    // Cache the fetched data into the local database
-                    movieDao.withTransaction {
-                        val movies = results.map { it.toMovieEntity(apiResponse.data.page) }
-                        movieDao.dao.upsertAll(movies)
-
-                        // Insert the sorting mappings to associate movies with the sortingId
-                        val mappings = results.map {
-                            SortingMovieMappingEntity(sortingId = sortingId, movieId = it.id)
-                        }
-                        movieDao.dao.insertSortingMappings(mappings)
-                    }
-
+                // Store the fetched data in the local DB
+                movieDao.withTransaction {
                     val movies = results.map { it.toMovieEntity(apiResponse.data.page) }
+                    movieDao.dao.upsertAll(movies)
 
-                    // Check if we've reached the end of the pagination
-                    val isEndOfPagination = results.isEmpty() || apiResponse.data.page >= apiResponse.data.total_pages
-
-                    // Return the paginated result
-                    LoadResult.Page(
-                        data = movies,
-                        prevKey = if (currentPage == 1) null else currentPage - 1,
-                        nextKey = if (isEndOfPagination) null else currentPage + 1
-                    )
-                }
-
-                is Result.Error -> {
-                    Log.i("error" ,"no connection ${apiResponse.exception}")
-                    movieDao.withTransaction {
-                        // If API fails, load from local database
-                        val movies = movieDao.dao.getMoviesForSorting(sortingId)
-                        if (movies.isNotEmpty()) {
-                            LoadResult.Page(
-                                data = movies,
-                                prevKey = null,
-                                nextKey = null
-                            )
-                        } else {
-                            LoadResult.Error(apiResponse.exception)
-                        }
+                    val mappings = results.map {
+                        SortingMovieMappingEntity(sortingId = sortingId, movieId = it.id)
                     }
+                    movieDao.dao.insertSortingMappings(mappings)
                 }
+
+                // Prepare the data to be displayed in the UI
+                val movies = results.map { it.toMovieEntity(apiResponse.data.page) }
+                val isEndOfPagination = results.isEmpty() || apiResponse.data.page >= apiResponse.data.total_pages
+
+                // Return the paginated data
+                return LoadResult.Page(
+                    data = movies,
+                    prevKey = if (currentPage == 1) null else currentPage - 1,
+                    nextKey = if (isEndOfPagination) null else currentPage + 1
+                )
+            } else if (apiResponse is Result.Error) {
+                apiFailed = true
+                throw apiResponse.exception
             }
         } catch (e: Exception) {
-            Log.i("error" ,"no connection and local db $e")
-            movieDao.withTransaction {
-                // Handle exceptions (e.g., network errors) and fallback to local data
-                val movies = movieDao.dao.getMoviesForSorting(sortingId)
-                if (movies.isNotEmpty()) {
-                    LoadResult.Page(
-                        data = movies,
-                        prevKey = null,
-                        nextKey = null
-                    )
-                } else {
-                    Log.i("error" ,"no connection and local db error2 $e")
-                    LoadResult.Error(e)
-                }
+            // Handle errors such as network failure, API errors, etc.
+            apiFailed = true
+            // Emit error state to the SharedFlow
+            onErrorFlow.emit("API request failed: ${e.message}")
+        }
+
+        // Fallback to local data if the API call fails
+        val movies = movieDao.withTransaction { movieDao.dao.getMoviesForSorting(sortingId) }
+
+        // Check if we've reached the end of local data
+        val isLastLocalPage = movies.size < params.loadSize
+
+        if (apiFailed) {
+            if (isLastLocalPage) {
+                // Emit error message that no connection is available and end of cached data reached
+                onErrorFlow.emit("No internet connection and you've reached the end of cached data.")
+            } else {
+                // Emit error message for API failure
+                onErrorFlow.emit("API request failed, please try again.")
             }
+        }
+
+        return if (movies.isNotEmpty()) {
+            // Return the local cached data if available
+            LoadResult.Page(
+                data = movies,
+                prevKey = if (currentPage == 1) null else currentPage - 1,
+                nextKey = if (isLastLocalPage) null else currentPage + 1
+            )
+        } else {
+            // If no local data available and API failed
+            LoadResult.Error(Exception("No data available"))
         }
     }
 
-    // Provide a refresh key to determine where to start when refreshing the data
     override fun getRefreshKey(state: PagingState<Int, MovieEntity>): Int? {
         return state.anchorPosition?.let { anchorPosition ->
             val anchorPage = state.closestPageToPosition(anchorPosition)
@@ -102,3 +102,4 @@ class MoviesPagingSource(
         }
     }
 }
+
