@@ -39,7 +39,7 @@ class MoviesRepositoryImpl(private val moviesDb: MoviesDatabase, private val rem
             0 -> remoteDao::getAccountFavoritesMovies
             1 -> remoteDao::getPopularMovies
             2 -> remoteDao::getCurrentlyBroadcastMovies
-            else -> remoteDao::getPopularMovies
+            else -> remoteDao::getAccountFavoritesMovies
         }
 
 

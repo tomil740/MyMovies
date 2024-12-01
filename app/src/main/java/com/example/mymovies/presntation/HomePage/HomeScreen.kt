@@ -74,7 +74,7 @@ fun HomeScreen(
 
                     // Movie List (scrollable below the top bar)
                     if (moviesData != null) {
-                        MovieList(moviesData = moviesData, onItemNav = onItemNav)
+                        MovieList(moviesData = moviesData, onItemNav = onItemNav,errorMe = homeStatesAndEvents.uiState.errorObserver)
                     }
                 }
             }

@@ -13,6 +13,7 @@ import com.example.mymovies.domain.util.Result
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.update
+import java.net.SocketTimeoutException
 
 class MoviesPagingSource(
     private val apiFun: suspend (Int) -> Result<ResponseDto>, // API function
@@ -59,10 +60,13 @@ class MoviesPagingSource(
                 apiFailed = true
                 throw apiResponse.exception
             }
-        } catch (e: Exception) {
-            // Handle errors such as network failure, API errors, etc.
+        } catch (e: SocketTimeoutException) {
+            // Specific handling for timeout errors
             apiFailed = true
-            // Emit error state to the SharedFlow
+            onErrorFlow.emit("Timeout error. Please check your connection and retry.")
+        } catch (e: Exception) {
+            // Generic error handling
+            apiFailed = true
             onErrorFlow.emit("API request failed: ${e.message}")
         }
 
