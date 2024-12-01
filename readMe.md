@@ -61,33 +61,40 @@ While Paging 3 is highly efficient, it requires the repository to directly manag
 
 ---
 
+# RemoteMediator vs PagingSource: Choosing the Right Approach for Data Fetching
+
+The `PagingSource` approach is a flexible solution for handling pagination and data fetching from both local databases and remote APIs. While the `RemoteMediator` is often the ideal choice for seamlessly integrating these data sources, providing automatic synchronization, error handling, and pagination management, I chose to implement `PagingSource` after encountering several unclear bugs with the `RemoteMediator`. 
+
+The `PagingSource` offers more explicit control over when to fetch from the API or fallback to local data, making it a better fit for scenarios that require fine-tuned error handling and custom data fetching behavior. Although `PagingSource` requires more manual pagination logic, it offers stability and control, making it an effective solution for managing large datasets while leveraging local caching efficiently.
+
+Additionally, the app's local database is designed with normalization in mind, ensuring that data is efficiently stored and relationships between entities (such as movies and sorting mappings) are managed properly. This improves performance, reduces redundancy, and ensures that the app’s data layer remains clean and scalable.
+
+---
+
 ## How to Run
 
 1. Clone the repository
 First, clone the repository to your local machine by running the following command in your terminal:
-    <h1>How to Run Movies App</h1>
-
-    <code>git clone https://github.com/yourusername/movies-app.git</code>
-
+    ```bash
+    git clone https://github.com/yourusername/movies-app.git
+    ```
 
 2. Add your API key
 To access the movie data from the TMDb API, you need to provide your API key.
 
-Navigate to the data/util directory in the project.<br>
+Navigate to the `data/util` directory in the project.
 
-Create or open the ApiKeys.kt file.<br>
+Create or open the `ApiKeys.kt` file.
 
-Add your TMDb API key in the file.<br>
+Add your TMDb API key in the file.
 
-You can obtain your TMDb API key by creating an account on The Movie Database and generating an API key under your account settings.<br>
+You can obtain your TMDb API key by creating an account on The Movie Database and generating an API key under your account settings.
 
 3. Open the project in Android Studio
 Open the project in Android Studio.
 
-4. Run the app<br>
+4. Run the app
 Connect a physical device or start an Android emulator (Android 5.0+). Then press Run in Android Studio.
-
-
 
 ---
 
@@ -95,5 +102,3 @@ Connect a physical device or start an Android emulator (Android 5.0+). Then pres
 
 - **Search Functionality:** Implement a search feature for users to find specific movies.
 - **User Authentication:** Enable login to sync favorites across devices.
-
-
