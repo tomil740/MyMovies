@@ -1,7 +1,7 @@
 package com.example.mymovies.presntation.HomePage
 
 import android.annotation.SuppressLint
-import android.widget.Toast
+import android.util.Log
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
@@ -13,13 +13,11 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.platform.LocalContext
 import androidx.paging.LoadState
 import androidx.paging.compose.collectAsLazyPagingItems
 import com.example.mymovies.presntation.HomePage.uiComponents.HomeTopBar
 import com.example.mymovies.presntation.HomePage.uiComponents.MovieList
 import com.example.mymovies.presntation.HomePage.uiComponents.SortMenu
-import kotlinx.coroutines.flow.MutableStateFlow
 
 
 @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
@@ -28,7 +26,6 @@ fun HomeScreen(
     onItemNav: (String) -> Unit,
     homeStatesAndEvents: HomeScreenStateAndEvents,
 ) {
-    val context = LocalContext.current
     val moviesData = homeStatesAndEvents.uiState.dataList?.collectAsLazyPagingItems()
 
     // State for the Snackbar
@@ -61,9 +58,8 @@ fun HomeScreen(
                 Column(modifier = Modifier.fillMaxSize()) {
                     // TopAppBar (fixed at the top)
                     HomeTopBar(
-                        userName = homeStatesAndEvents.uiState.userName,
-                        isLoggedIn = homeStatesAndEvents.uiState.userName.isNotEmpty(),
-                        onLoginClick = { /* Handle login action */ }
+                        user = homeStatesAndEvents.uiState.userState,
+                        onLoginClick = {homeStatesAndEvents.onLogIn(it)}
                     )
 
                     // Sorting Menu (fixed at the top)

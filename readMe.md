@@ -71,6 +71,22 @@ Additionally, the app's local database is designed with normalization in mind, e
 
 ---
 
+## Authentication with TMDB API
+
+The app integrates authentication with the TMDB API, which enables additional features beyond the default guest access. While guests can use basic functionality, authenticated users can access advanced features, such as tracking their favorite movies and managing other personalized data within the API.
+
+### Authentication Flow
+
+Authentication in the app is handled by redirecting users to TMDB's website for login via an intent. Once the user successfully logs in, a session ID is obtained and used to interact with the API on behalf of the authenticated user. This session ID is stored and used for further API calls to access personalized data like favorites and account details.
+
+### Implementation Details
+
+The authentication mechanism was implemented in a slightly unconventional way by modifying the repository pattern. Instead of having a direct connection to the authentication state from a repository, the repository serves as a connection point to the authentication process.
+
+A special object is used to store authentication data, such as the session ID and associated keys, as a shared state across the app. This approach serves as a preparation for adding security measures to protect this data in a production environment. While the current implementation functions as a basic wrapper around authentication, it lays the groundwork for future enhancements, including secure storage and better data protection.
+
+---
+
 ## How to Run
 
 1. Clone the repository
@@ -84,7 +100,7 @@ To access the movie data from the TMDb API, you need to provide your API key.
 
 Navigate to the `data/util` directory in the project.
 
-Create or open the `ApiKeys.kt` file.
+Create or open the `ApiConstants.kt` file.
 
 Add your TMDb API key in the file.
 
@@ -101,4 +117,3 @@ Connect a physical device or start an Android emulator (Android 5.0+). Then pres
 ## Future Improvements
 
 - **Search Functionality:** Implement a search feature for users to find specific movies.
-- **User Authentication:** Enable login to sync favorites across devices.

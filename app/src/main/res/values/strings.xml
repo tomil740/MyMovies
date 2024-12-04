@@ -1,3 +1,4 @@
 <resources>
     <string name="app_name">MyMovies</string>
+    <string name="title_activity_login_activety">LoginActivety</string>
 </resources>

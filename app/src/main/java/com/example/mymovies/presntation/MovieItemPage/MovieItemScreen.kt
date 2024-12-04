@@ -10,6 +10,7 @@ import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.filled.Favorite
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -41,159 +42,194 @@ fun MovieItemScreen(
 
     var isFavoriteButtonFocused by remember { mutableStateOf(false) }
 
-    Box(
-        modifier = Modifier
-            .fillMaxSize()
-            .padding(16.dp)
-            .background(MaterialTheme.colorScheme.background)
-            .onPreviewKeyEvent { event ->
-                if (event.type == KeyEventType.KeyDown) {
-                    when (event.key) {
-                        Key.Enter -> {
-                            if (isFavoriteButtonFocused) {
-                                movieItemStateAndEvents.onFavorite()
-                                true
-                            } else false
-                        }
-                        else -> false
-                    }
-                } else false
-            }
-    ) {
-        // Background Image
-        Image(
-            painter = rememberImagePainter(movie.backgroundImgUrl),
-            contentDescription = "Movie background",
-            modifier = Modifier
-                .fillMaxWidth()
-                .height(300.dp)
-                .align(Alignment.TopCenter),
-            contentScale = ContentScale.Crop
-        )
+    val errorMessage = remember { mutableStateOf<String?>(null) }
 
-        // Gradient overlay to allow background image visibility but emphasize text
-        Box(
-            modifier = Modifier
-                .fillMaxWidth()
-                .height(300.dp)
-                .align(Alignment.TopCenter)
-                .background(
-                    Brush.verticalGradient(
-                        colors = listOf(
-                            MaterialTheme.colorScheme.primary.copy(alpha = 0.8f),
-                            MaterialTheme.colorScheme.primary.copy(alpha = 0f)
-                        )
-                    )
-                )
-        )
+    // Snackbar host state
+    val snackbarHostState = remember { SnackbarHostState() }
 
-        // Top Bar with back button and favorite button
-        TopAppBar(
-            title = {},
-            navigationIcon = {
-                IconButton(
-                    onClick = { movieItemStateAndEvents.onNavBack() },
-                    modifier = Modifier.size(32.dp) // Increased icon size
-                ) {
-                    Icon(
-                        Icons.Filled.ArrowBack,
-                        contentDescription = "Back"
-                    )
-                }
-            },
-            actions = {
-                IconButton(
-                    onClick = { movieItemStateAndEvents.onFavorite() },
-                    modifier = Modifier
-                        .size(32.dp)
-                        .onFocusChanged { isFavoriteButtonFocused = it.isFocused }
-                ) {
-                    Icon(
-                        Icons.Filled.Favorite,
-                        tint = if (uiState.favoriteStatus) Color.Red else Color.White,
-                        contentDescription = "Favorite"
-                    )
-                }
-            },
-            colors = TopAppBarDefaults.topAppBarColors(
-                containerColor = Color.Transparent,
-                titleContentColor = Color.Transparent
-            ),
-            modifier = Modifier
-                .fillMaxWidth()
-                .align(Alignment.TopStart)
-                .padding(8.dp)
-        )
-
-        // Movie Poster (inside Card)
-        Box(
-            modifier = Modifier
-                .fillMaxWidth()
-                .align(Alignment.TopCenter)
-                .padding(top = 180.dp),
-            contentAlignment = Alignment.Center
-        ) {
-            Card(
-                shape = RoundedCornerShape(corner = CornerSize(16.dp)),
-                elevation = CardDefaults.elevatedCardElevation(defaultElevation = 8.dp),
-                modifier = Modifier
-                    .width(220.dp)
-                    .height(320.dp)
-            ) {
-                Image(
-                    painter = rememberImagePainter(movie.mainImgUrl),
-                    contentDescription = "Movie Poster",
-                    contentScale = ContentScale.Crop,
-                    modifier = Modifier.fillMaxSize()
-                )
-            }
-        }
-
-        // Movie Title, Release Date, and Overview
-        Column(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(top = 320.dp)
-                .align(Alignment.TopStart)
-        ) {
-            // Movie Title
-            Text(
-                text = movie.title,
-                style = MaterialTheme.typography.headlineLarge,
-                modifier = Modifier.fillMaxWidth(),
-                maxLines = 1,
-                overflow = TextOverflow.Ellipsis,
-                color = MaterialTheme.colorScheme.onBackground
-            )
-
-            Spacer(modifier = Modifier.height(8.dp))
-
-            // Release Date
-            Text(
-                text = "Release Date: ${movie.releaseDate}",
-                style = MaterialTheme.typography.bodyMedium,
-                color = MaterialTheme.colorScheme.secondary
-            )
-
-            Spacer(modifier = Modifier.height(16.dp))
-
-            // Vote Average Component
-            VoteAverageIndicator(voteAverage = uiState.movieModuleItem.voteAverage)
-
-            Spacer(modifier = Modifier.height(16.dp))
-
-            // Movie Overview
-            Text(
-                text = movie.overview,
-                style = MaterialTheme.typography.bodyLarge,
-                color = MaterialTheme.colorScheme.onBackground,
-                modifier = Modifier.fillMaxWidth(),
-                maxLines = 5,
-                overflow = TextOverflow.Ellipsis
+    // Collect error state from the ViewModel's SharedFlow
+    LaunchedEffect(key1 = movieItemStateAndEvents.uiState.errorObserver) {
+        movieItemStateAndEvents.uiState.errorObserver.collect { error ->
+            errorMessage.value = error
+            snackbarHostState.showSnackbar(
+                message = error,
+                actionLabel = "Dismiss",
+                withDismissAction = true,
+                duration = SnackbarDuration.Short
             )
         }
     }
+
+    Scaffold(
+        snackbarHost = {
+            SnackbarHost(hostState = snackbarHostState) { snackbarData ->
+                Snackbar(
+                    snackbarData = snackbarData,
+                    actionOnNewLine = false,
+                    modifier = Modifier.padding(8.dp),
+                    containerColor = MaterialTheme.colorScheme.surfaceVariant,
+                    contentColor = MaterialTheme.colorScheme.onSurface,
+                    actionColor = MaterialTheme.colorScheme.primary
+                )
+            }
+        }
+    ) { paddingValues ->
+        Box(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(paddingValues)
+                .padding(16.dp)
+                .background(MaterialTheme.colorScheme.background)
+                .onPreviewKeyEvent { event ->
+                    if (event.type == KeyEventType.KeyDown) {
+                        when (event.key) {
+                            Key.Enter -> {
+                                if (isFavoriteButtonFocused) {
+                                    movieItemStateAndEvents.onFavorite()
+                                    true
+                                } else false
+                            }
+                            else -> false
+                        }
+                    } else false
+                }
+        ) {
+            // Background Image
+            Image(
+                painter = rememberImagePainter(movie.backgroundImgUrl),
+                contentDescription = "Movie background",
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(300.dp)
+                    .align(Alignment.TopCenter),
+                contentScale = ContentScale.Crop
+            )
+
+            // Gradient overlay to allow background image visibility but emphasize text
+            Box(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(300.dp)
+                    .align(Alignment.TopCenter)
+                    .background(
+                        Brush.verticalGradient(
+                            colors = listOf(
+                                MaterialTheme.colorScheme.primary.copy(alpha = 0.8f),
+                                MaterialTheme.colorScheme.primary.copy(alpha = 0f)
+                            )
+                        )
+                    )
+            )
+
+            // Top Bar with back button and favorite button
+            TopAppBar(
+                title = {},
+                navigationIcon = {
+                    IconButton(
+                        onClick = { movieItemStateAndEvents.onNavBack() },
+                        modifier = Modifier.size(32.dp) // Increased icon size
+                    ) {
+                        Icon(
+                            Icons.Filled.ArrowBack,
+                            contentDescription = "Back"
+                        )
+                    }
+                },
+                actions = {
+                    IconButton(
+                        onClick = { movieItemStateAndEvents.onFavorite() },
+                        modifier = Modifier
+                            .size(32.dp)
+                            .onFocusChanged { isFavoriteButtonFocused = it.isFocused }
+                    ) {
+                        Icon(
+                            Icons.Filled.Favorite,
+                            tint = if (uiState.favoriteStatus) Color.Red else Color.White,
+                            contentDescription = "Favorite"
+                        )
+                    }
+                },
+                colors = TopAppBarDefaults.topAppBarColors(
+                    containerColor = Color.Transparent,
+                    titleContentColor = Color.Transparent
+                ),
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .align(Alignment.TopStart)
+                    .padding(8.dp)
+            )
+
+            // Movie Poster (inside Card)
+            Box(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .align(Alignment.TopCenter)
+                    .padding(top = 180.dp),
+                contentAlignment = Alignment.Center
+            ) {
+                Card(
+                    shape = RoundedCornerShape(corner = CornerSize(16.dp)),
+                    elevation = CardDefaults.elevatedCardElevation(defaultElevation = 8.dp),
+                    modifier = Modifier
+                        .width(220.dp)
+                        .height(320.dp)
+                ) {
+                    Image(
+                        painter = rememberImagePainter(movie.mainImgUrl),
+                        contentDescription = "Movie Poster",
+                        contentScale = ContentScale.Crop,
+                        modifier = Modifier.fillMaxSize()
+                    )
+                }
+            }
+
+            // Movie Title, Release Date, and Overview
+            Column(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .padding(top = 320.dp)
+                    .align(Alignment.TopStart)
+            ) {
+                // Movie Title
+                Text(
+                    text = movie.title,
+                    style = MaterialTheme.typography.headlineLarge,
+                    modifier = Modifier.fillMaxWidth(),
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis,
+                    color = MaterialTheme.colorScheme.onBackground
+                )
+
+                Spacer(modifier = Modifier.height(8.dp))
+
+                // Release Date
+                Text(
+                    text = "Release Date: ${movie.releaseDate}",
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = MaterialTheme.colorScheme.secondary
+                )
+
+                Spacer(modifier = Modifier.height(16.dp))
+
+                // Vote Average Component
+                VoteAverageIndicator(voteAverage = uiState.movieModuleItem.voteAverage)
+
+                Spacer(modifier = Modifier.height(16.dp))
+
+                // Movie Overview
+                Text(
+                    text = movie.overview,
+                    style = MaterialTheme.typography.bodyLarge,
+                    color = MaterialTheme.colorScheme.onBackground,
+                    modifier = Modifier.fillMaxWidth(),
+                    maxLines = 5,
+                    overflow = TextOverflow.Ellipsis
+                )
+            }
+        }
+    }
 }
+
 
 
 

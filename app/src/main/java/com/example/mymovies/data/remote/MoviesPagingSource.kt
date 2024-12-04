@@ -19,7 +19,10 @@ class MoviesPagingSource(
     private val apiFun: suspend (Int) -> Result<ResponseDto>, // API function
     private val sortingId: Int, // Sorting identifier
     private val movieDao: MoviesDatabase, // DAO for local DB operations
-    private val onErrorFlow: MutableSharedFlow<String> // SharedFlow to emit error messages
+    private val onErrorFlow: MutableSharedFlow<String>, // SharedFlow to emit error messages
+    private val apiOnFavoriteFun:suspend (Int,String,Int)->Result<ResponseDto>,
+    private val accountKey:String,
+    private val accountId:Int,
 ) : PagingSource<Int, MovieEntity>() {
 
     override suspend fun load(params: LoadParams<Int>): LoadResult<Int, MovieEntity> {
@@ -29,7 +32,11 @@ class MoviesPagingSource(
 
         try {
             // Attempt to fetch data from the API
-            val apiResponse = apiFun.invoke(currentPage)
+            val apiResponse =  if(sortingId != 0){
+                apiFun.invoke(currentPage)
+            }else {
+                apiOnFavoriteFun.invoke(currentPage,accountKey,accountId)
+            }
 
             if (apiResponse is Result.Success) {
                 val results = apiResponse.data.results

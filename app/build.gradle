@@ -60,6 +60,7 @@ dependencies {
     implementation(libs.androidx.material3)
     implementation(libs.androidx.room.runtime)
     implementation(libs.androidx.room.ktx)
+    implementation libs.androidx.ui.graphics
     kapt(libs.androidx.room.compiler)
 
 
@@ -70,6 +71,8 @@ dependencies {
 
     // Room Paging (for Room + Paging integration)
     implementation "androidx.room:room-paging:2.5.1"
+    implementation "androidx.datastore:datastore-preferences:1.0.0"
+
 
     // Paging Compose (for Jetpack Compose)
 

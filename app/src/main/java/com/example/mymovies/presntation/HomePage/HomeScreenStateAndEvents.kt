@@ -6,6 +6,7 @@ data class HomeScreenStateAndEvents (
     val onSorting:(Int)->Unit,
     val onError:(String)->Unit,
     val onSortingFail:()->Unit,
-    val navToItem:(String)->Unit
+    val navToItem:(String)->Unit,
+    val onLogIn:(Boolean)->Unit
 )
 

@@ -39,6 +39,7 @@ import androidx.paging.LoadState
 import androidx.paging.compose.LazyPagingItems
 import androidx.paging.compose.itemsIndexed
 import com.example.mymovies.domain.models.MovieListItem
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.launch
 
@@ -46,7 +47,7 @@ import kotlinx.coroutines.launch
 fun MovieList(
     moviesData: LazyPagingItems<MovieListItem>?,
     onItemNav: (String) -> Unit,
-    errorMe : SharedFlow<String>
+    errorMe: SharedFlow<String>
 ) {
     val focusManager = LocalFocusManager.current
     val listState = rememberLazyListState()
@@ -54,11 +55,15 @@ fun MovieList(
     val coroutineScope = rememberCoroutineScope()
 
     var errorMessage by remember { mutableStateOf<String?>(null) }
+    var errorVisible by remember { mutableStateOf(false) }
 
     // Observe error flow
     LaunchedEffect(Unit) {
         errorMe.collect { message ->
             errorMessage = message
+            errorVisible = true
+            delay(1200)
+            errorVisible = false
         }
     }
 
@@ -133,19 +138,22 @@ fun MovieList(
             }
         }
 
-        // Show retry button if there's an error
-        errorMessage?.let { error ->
+        // Show error message and retry button if there's an error
+        if (errorVisible && errorMessage != null) {
             Column(
                 modifier = Modifier
                     .fillMaxSize()
-                    .background(Color.Black.copy(alpha = 0.8f))
+                    .background(Color.Black.copy(alpha = 0.92f))
                     .padding(16.dp),
                 verticalArrangement = Arrangement.Center,
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
-                Text(text = error, color = Color.White)
+                Text(text = errorMessage ?: "Unknown error", color = Color.White)
                 Spacer(modifier = Modifier.height(8.dp))
-                Button(onClick = { moviesData?.retry() }) {
+                Button(onClick = {
+                    // Retry action, you can handle it here, for example:
+                    moviesData?.retry() // This will trigger a retry for the failed load state
+                }) {
                     Text(text = "Retry")
                 }
             }

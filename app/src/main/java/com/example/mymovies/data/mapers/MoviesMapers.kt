@@ -1,9 +1,11 @@
 package com.example.mymovies.data.mapers
 
 import com.example.mymovies.data.local.MovieEntity
+import com.example.mymovies.data.remote.dtoModels.AccountDto
 import com.example.mymovies.data.remote.dtoModels.MovieDto
 import com.example.mymovies.domain.models.MovieListItem
 import com.example.mymovies.domain.models.MovieModule
+import com.example.mymovies.domain.models.UserStateUi
 
 fun MovieDto.toMovieEntity(pageIndex:Int): MovieEntity {
     return MovieEntity(
@@ -47,5 +49,14 @@ fun MovieEntity.toMovieListItem(): MovieListItem {
         posterImg = if(posterPath!=null){"https://image.tmdb.org/t/p/w600_and_h900_bestv2/${posterPath}"}else{ "https://dubaitickets.tours/wp-content/uploads/2023/03/img-worlds-of-adventure-dubai-ticket-9-1.jpg"},
         releaseDate = releaseDate,
         voteAverage = voteAverage.toFloat()
+    )
+}
+
+fun AccountDto.toUserStateUi(key:String):UserStateUi{
+    return UserStateUi(
+        id = accountId,
+        name = username,
+        key = key,
+        isLoading = false
     )
 }
